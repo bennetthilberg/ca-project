@@ -102,6 +102,7 @@ class CAAnimator : public emp::web::Animate {
             }
         }
 
+        // Reset cells to 0 and handle wrapping for drawing
         for (int x = 0; x < num_w_boxes; x++) {
             for (int y = 0; y < num_h_boxes; y++) {
                 if (cells[x][y] == 1) {
@@ -110,23 +111,41 @@ class CAAnimator : public emp::web::Animate {
             }
         }
 
-        // Reset cells to 0
-        for (int x = 0; x < num_w_boxes; x++) {
-            for (int y = 0; y < num_h_boxes; y++) {
-                if (cells[x][y] == 1) {
-                    cells[x][y] = 0;
-                }
-            }
-        }
-        // Draw dave
+        /* old draw dave
         cells[dave.getX()][dave.getY()] = 1;     // dave's top left square
         cells[dave.getX() + 1][dave.getY()] = 1; // dave's top right square
         cells[dave.getX()][dave.getY() + 1] = 1; // dave's bottom left square
         cells[dave.getX() + 1][dave.getY() + 1] =
-            1; // dave's bottom right square
+            1; dave's bottom right square
+        */
+
+        // Draw dave, making sure to wrap around the grid edges
+        int daveX = dave.getX();
+        int daveY = dave.getY();
+        cells[daveX % num_w_boxes][daveY % num_h_boxes] = 1;
+        cells[(daveX + 1) % num_w_boxes][daveY % num_h_boxes] = 1;
+        cells[daveX % num_w_boxes][(daveY + 1) % num_h_boxes] = 1;
+        cells[(daveX + 1) % num_w_boxes][(daveY + 1) % num_h_boxes] = 1;
+
+        if (frameCounter % 5 == 0) {
+            switch (dave.getDirection()) {
+            case 0: // Up
+                dave.setY((dave.getY() - 1 + num_h_boxes) % num_h_boxes);
+                break;
+            case 1: // Right
+                dave.setX((dave.getX() + 1) % num_w_boxes);
+                break;
+            case 2: // Down
+                dave.setY((dave.getY() + 1) % num_h_boxes);
+                break;
+            case 3: // Left
+                dave.setX((dave.getX() - 1 + num_w_boxes) % num_w_boxes);
+                break;
+            }
+        }
 
         // Move dave his decided direction
-        if (frameCounter % 5 == 0) {
+        if (frameCounter % 9 == 0) {
             if (dave.getDirection() == 0) {
                 dave.setY(dave.getY() - 1);
             } else if (dave.getDirection() == 1) {
@@ -139,7 +158,7 @@ class CAAnimator : public emp::web::Animate {
         }
 
         // Decide dave's direction (every 10 frames)
-        if (frameCounter % 12 == 0) {
+        if (frameCounter % 4 == 0) {
             dave.setDirection(dave.decideWhereToGo());
         }
 
